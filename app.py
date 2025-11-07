@@ -349,6 +349,7 @@ LANGUAGES = [
 def translate_text_groq(text, target_language):
     try:
         if not GROQ_API_KEY:
+            st.error("❌ Groq API key not found! Translation disabled.")
             return text  # Return original if no API key
         
         client = Groq(api_key=GROQ_API_KEY)
@@ -378,24 +379,29 @@ def translate_text_groq(text, target_language):
         if target_lang_name == "English":
             return text
         
-        # Use Groq's Whisper model for translation
+        # Use Groq's LLM for translation
         chat_completion = client.chat.completions.create(
             messages=[
                 {
                     "role": "system",
-                    "content": f"You are a professional translator. Translate the following text to {target_lang_name}. Only provide the translation, no explanations."
+                    "content": f"You are a professional translator specializing in {target_lang_name}. Translate the following English text to {target_lang_name}. Provide ONLY the {target_lang_name} translation, no explanations or English text."
                 },
                 {
                     "role": "user",
-                    "content": text
+                    "content": f"Translate this to {target_lang_name}:\n\n{text}"
                 }
             ],
-            model="llama-3.3-70b-versatile",  # Using Groq's powerful model
+            model="llama-3.3-70b-versatile",
             temperature=0.3,
-            max_tokens=1024
+            max_tokens=2048
         )
         
         translated_text = chat_completion.choices[0].message.content.strip()
+        
+        # Debug: Show what was returned
+        if translated_text == text or translated_text.lower() == text.lower():
+            st.warning(f"⚠️ Translation may have failed. Groq returned same text.")
+        
         return translated_text
         
     except Exception as e:
