@@ -12,16 +12,25 @@ import tempfile
 # Load environment variables
 load_dotenv()
 
+# Function to get secrets (works for both local .env and Streamlit Cloud)
+def get_secret(key):
+    # Try Streamlit secrets first (for Streamlit Cloud)
+    try:
+        return st.secrets[key]
+    except:
+        # Fall back to environment variables (for local development)
+        return os.getenv(key)
+
 # Twilio configuration
-TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
-TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
-TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
+TWILIO_ACCOUNT_SID = get_secret("TWILIO_ACCOUNT_SID")
+TWILIO_AUTH_TOKEN = get_secret("TWILIO_AUTH_TOKEN")
+TWILIO_PHONE_NUMBER = get_secret("TWILIO_PHONE_NUMBER")
 
 # Groq configuration
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+GROQ_API_KEY = get_secret("GROQ_API_KEY")
 
 # ElevenLabs configuration
-ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY")
+ELEVENLABS_API_KEY = get_secret("ELEVENLABS_API_KEY")
 
 # Page configuration
 st.set_page_config(
